@@ -20,10 +20,17 @@ There can only be one Subscriber attached to a Subscription.
 
 ## The PubSub system should support below methods:
 CreateTopic(TopicID)
+
 DeleteTopic(TopicID)
+
 AddSubscription(TopicID,SubscriptionID); Creates and adds Subscription with id SubscriptionID to topicID.
+
 DeleteSubscription(SubscriptionID)
+
 Publish(TopicID, message); publishes the message on the given Topic
+
 Subscribe(SubscriptionID, SubscriberFunc); SubscriberFunc is the callback function given by Subscriber, which is executed for each message of the Subscription.
+
 UnSubscribe(SubscriptionID); After this the Subscriber will no longer receive messages from the Subscription with given SubscriptionID
+
 Ack(SubscriptionID, MessageID); Called by Subscriber to intimate the Subscription that the message has been received and processed.
