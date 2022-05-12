@@ -1,53 +1,56 @@
 package main
+
 import (
-    "fmt"
-    "math/rand"
-    "time"
-    "github.com/anandnahadia/internal"
+	"context"
+	"fmt"
+	"os"
+	"sync"
+	"time"
+
+	"github.com/anandnahadia/pubsub/internal"
 )
 
-func main(){
-    // create new agent
-    agent := internal.NewAgent()
-    // create new subscriber
-    s1 := agent.AddNewSubscriberToAgent()
-    // subscribe Weather and Entertainment to s1.
-    agent.AddSubscription(s1, topic1.topicID)
-    // create new subscriber
-    s2 := agent.AddNewSubscriberToAgent()
-    // subscribe Music and Sports to s2.
-    broker.Subscribe(s2, topic2.topicID)
+var (
+	topic1 = internal.Topic{TopicID: 1, Name: "Weather"}
+	topic2 = internal.Topic{TopicID: 2, Name: "Entertainment"}
+	topic3 = internal.Topic{TopicID: 3, Name: "Music"}
+	topic4 = internal.Topic{TopicID: 4, Name: "Sports"}
+)
 
-	s3 := agent.AddNewSubscriberToAgent()
-    // subscribe Weather and Entertainment to s1.
-    agent.AddSubscription(s3, topic3.topicID)
-    // create new subscriber
-    s4 := agent.AddNewSubscriberToAgent()
-    // subscribe Music and Sports to s2.
-    broker.Subscribe(s4, topic4.topicID)
+func main() {
+	// create new agent
+	agent := internal.NewAgent()
+	// create new subscribers
+	// subscribe topics.
+	s1 := agent.AddSubscription("1", topic1.TopicID)
 
-    go (func(){
-        time.Sleep(3*time.Second)
-        agent.Subscribe(s2, topic2.TopicID)
-    })()
-    go (func(){
-        time.Sleep(5*time.Second)
-        agent.Unsubscribe(s2, topic3.TopicID)
-    })()
+	s2 := agent.AddSubscription("2", topic2.TopicID)
 
-    go (func(){
-        time.Sleep(10*time.Second)
-        agent.RemoveSubscriber(s2)
-    })()
-    // Concurrently publish the values.
-    go internal.PublishMessages(broker)
-    // Concurrently listens from s1.
-    go s1.Listen()
-    // Concurrently listens from s2.
-    go s2.Listen()
-	go s3.Listen()
-	go s4.Listen()
-    // to prevent terminate
-    fmt.Scanln()
-    fmt.Println("Done!")
+	s3 := agent.AddSubscription("3", topic3.TopicID)
+
+	s4 := agent.AddSubscription("4", topic4.TopicID)
+
+	time.Sleep(3 * time.Second)
+	wg := &sync.WaitGroup{}
+	wg.Add(5)
+	ctx, cancel := context.WithCancel(context.Background())
+	// Concurrently publish to topics.
+	go internal.PublishMessages(ctx, wg, agent)
+	// Concurrently listens from topics.
+
+	go s1.Listen(ctx, wg)
+
+	go s2.Listen(ctx, wg)
+
+	go s3.Listen(ctx, wg)
+
+	go s4.Listen(ctx, wg)
+
+	go func() {
+		os.Stdin.Read(make([]byte, 1)) // wait for Enter keystroke
+		cancel()                       // cancel the associated context
+	}()
+
+	wg.Wait()
+	fmt.Println("Done!")
 }

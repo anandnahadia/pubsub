@@ -1,31 +1,35 @@
 package internal
 
+import "fmt"
+
 type Topic struct {
-	topicID int
-	name string
+	TopicID int
+	Name    string
 }
 type Message struct {
-    topic string
-    body string
+	topicID int
+	body    string
 }
-func NewMessage(msg string, topic string) (* Message) {
-    // Returns the message object
-    return &Message{
-        topic: topic,
-        body: msg,
-    }
-}
-func CreateTopic(topicID int) (* topic) {
-    topic := Topic{
-		topicID: topicID
-		name: "New Topic"
+
+func NewMessage(msg string, topicID int) *Message {
+	// Returns the message object
+	return &Message{
+		topicID: topicID,
+		body:    msg,
 	}
-	return topic
+}
+func CreateTopic(topicID int) *Topic {
+	topic := Topic{
+		TopicID: topicID,
+		Name:    "New Topic",
+	}
+	return &topic
 }
 
 func DeleteTopic(topicID int) {
-	topic := topic{
-		id: topicID
+	topic := Topic{
+		TopicID: topicID,
 	}
-	delete(topic)
+	fmt.Println(topic)
+	// delete(topic)
 }
